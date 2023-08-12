@@ -1,0 +1,42 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/widgets.dart';
+
+class ImageLoadingService extends StatelessWidget {
+  final String imageUrl;
+  final BorderRadius? borderRadius;
+  final double? width;
+  final double? height;
+  final BoxFit? fit;
+  const ImageLoadingService({
+    Key? key,
+    required this.imageUrl,
+    this.borderRadius,
+    this.width,
+    this.height,
+    this.fit,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget image;
+    if ((width != null || height != null) && fit != null) {
+      image = CachedNetworkImage(
+        width: width,
+        height: height,
+        imageUrl: imageUrl,
+        fit: fit,
+      );
+    } else {
+      image = CachedNetworkImage(
+        imageUrl: imageUrl,
+        fit: BoxFit.fitWidth,
+      );
+    }
+
+    if (borderRadius != null) {
+      return ClipRRect(borderRadius: borderRadius, child: image);
+    } else {
+      return image;
+    }
+  }
+}
