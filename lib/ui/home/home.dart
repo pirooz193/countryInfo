@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:counries_info/data/CountryEntity.dart';
 import 'package:counries_info/repository/CountryRepository.dart';
 import 'package:counries_info/ui/country/country.dart';
@@ -6,14 +8,14 @@ import 'package:counries_info/widgets/error.dart';
 import 'package:counries_info/widgets/image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:marquee/marquee.dart';
 
 final lastSearche = [];
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({super.key});
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -24,33 +26,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String calculateTimeFromTimeZoneOffset(String timeZoneOffset) {
-      String formattedUtcTime = '';
-      if (timeZoneOffset == 'UTC') {
-        DateTime localTime = DateTime.now();
-
-        DateTime utcTime = localTime;
-        formattedUtcTime = "${utcTime.toUtc()}";
-      } else {
-        String sign = timeZoneOffset.substring(3, 4);
-        int hours = int.parse(timeZoneOffset.substring(4, 6));
-        int minutes = int.parse(timeZoneOffset.substring(7, 9));
-
-        int totalOffsetMinutes =
-            (sign == '+') ? (hours * 60 + minutes) : (-hours * 60 - minutes);
-
-        DateTime localTime = DateTime.now();
-
-        DateTime utcTime = (sign == '+')
-            ? localTime.add(Duration(minutes: totalOffsetMinutes))
-            : localTime.subtract(Duration(minutes: totalOffsetMinutes));
-
-        formattedUtcTime = "${utcTime.toUtc()}";
-      }
-
-      return formattedUtcTime;
-    }
-
     final themeData = Theme.of(context);
     return BlocProvider(
       create: (context) {
@@ -59,20 +34,17 @@ class _HomeScreenState extends State<HomeScreen> {
         return homeBloc;
       },
       child: Scaffold(
-        backgroundColor: Color.fromARGB(255, 227, 236, 236),
+        backgroundColor: const Color.fromARGB(255, 227, 236, 236),
         body: SafeArea(
-            child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 150, right: 10, left: 10),
-            child: Column(
-              // mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                _TextFieldContent(controller: controller, themeData: themeData),
-                _SearchHistory(themeData: themeData),
-                BlocBuilder<HomeBloc, HomeState>(
+            child: Padding(
+          padding: const EdgeInsets.only(bottom: 0, right: 10, left: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              _TextFieldContent(controller: controller, themeData: themeData),
+              _SearchHistory(themeData: themeData),
+              Expanded(
+                child: BlocBuilder<HomeBloc, HomeState>(
                   builder: (context, state) {
                     if (state is HomeSuccess) {
                       final countries = state.countries;
@@ -88,106 +60,99 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                           ),
                         );
-                      }
+                      } else if (countries.length < 195) {}
                       return RefreshIndicator(
                         onRefresh: () async {
                           setState(() {
-                            BlocProvider.of<HomeBloc>(context).add(
-                                HomeScreenCountrySearch(controller.text ?? ''));
+                            BlocProvider.of<HomeBloc>(context)
+                                .add(HomeScreenCountrySearch(controller.text));
                           });
                         },
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width,
-                              height: MediaQuery.of(context).size.height,
-                              child: ListView.builder(
-                                physics: const BouncingScrollPhysics(),
-                                scrollDirection: Axis.vertical,
-                                itemCount: countries.length,
-                                itemBuilder: (context, index) {
-                                  final currentCountry = countries[index];
-                                  final time = calculateTimeFromTimeZoneOffset(
-                                      currentCountry.timezones![0]);
-                                  return InkWell(
-                                      borderRadius: BorderRadius.circular(20),
-                                      onTap: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) => CountryScreen(
-                                                country: currentCountry),
-                                          ),
-                                        );
-                                      },
-                                      child: _CountryItem(
-                                          currentCountry: currentCountry,
-                                          themeData: themeData,
-                                          time: time));
-                                },
-                              ),
-                            ),
-                          ],
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height - 150,
+                          child: ListView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            scrollDirection: Axis.vertical,
+                            itemCount: countries.length,
+                            itemBuilder: (context, index) {
+                              final currentCountry = countries[index];
+                              final time = calculateTimeFromTimeZoneOffset(
+                                  currentCountry.timezones![0]);
+                              return InkWell(
+                                  borderRadius: BorderRadius.circular(20),
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => CountryScreen(
+                                            country: currentCountry),
+                                      ),
+                                    );
+                                  },
+                                  child: _CountryItem(
+                                      currentCountry: currentCountry,
+                                      themeData: themeData,
+                                      time: time));
+                            },
+                          ),
                         ),
                       );
                     } else if (state is HomeLoading) {
                       return Center(
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 100),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              
-                              
-                              SvgPicture.asset(
-                                'assets/images/earth.svg',
-                                width: 100,
-                                height: 100,
-                                color: Colors.grey.shade600,
-                              ),
-                              const SizedBox(
-                                height: 30,
-                              ),
-                              Text(
-                                'در حال جستجوی ۱۹۵ کشور ',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                      color: Colors.grey.shade600,
-                                    ),
-                              ),
-                              const SizedBox(
-                                height: 30,
-                              ),
-                              CircularProgressIndicator(
-                                color: Colors.grey.shade500,
-                              ),
-                            ],
-                          ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SvgPicture.asset(
+                              'assets/images/earth.svg',
+                              width: 120,
+                              height: 120,
+                              color: Colors.grey.shade600,
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            Text(
+                              'در حال جستجوی ۱۹۵ کشور ',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: Colors.grey.shade600,
+                                  ),
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            CircularProgressIndicator(
+                              color: Colors.grey.shade500,
+                            ),
+                          ],
                         ),
                       );
                     } else if (state is HomeError) {
-                      return AppErrorWidget(
-                        image: SvgPicture.asset(
-                          'assets/icons/serverError.svg',
-                          width: 60,
-                          height: 60,
-                          color: Colors.black,
+                      return Center(
+                        child: AppErrorWidget(
+                          image: SvgPicture.asset(
+                            'assets/icons/serverError.svg',
+                            width: 60,
+                            height: 60,
+                            color: Colors.black,
+                          ),
+                          exception: state.exception,
+                          onTap: () {
+                            BlocProvider.of<HomeBloc>(context)
+                                .add(HomeScreenCountrySearch(controller.text));
+                          },
                         ),
-                        exception: state.exception,
-                        onTap: () {
-                          BlocProvider.of<HomeBloc>(context)
-                              .add(HomeScreenCountrySearch(controller.text));
-                        },
                       );
                     } else {
                       throw Exception('state is not supported');
                     }
                   },
-                )
-              ],
-            ),
+                ),
+              )
+            ],
           ),
         )),
       ),
@@ -195,9 +160,35 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+String calculateTimeFromTimeZoneOffset(String timeZoneOffset) {
+  String formattedUtcTime = '';
+  if (timeZoneOffset == 'UTC') {
+    DateTime localTime = DateTime.now();
+
+    DateTime utcTime = localTime;
+    formattedUtcTime = "${utcTime.toUtc()}";
+  } else {
+    String sign = timeZoneOffset.substring(3, 4);
+    int hours = int.parse(timeZoneOffset.substring(4, 6));
+    int minutes = int.parse(timeZoneOffset.substring(7, 9));
+
+    int totalOffsetMinutes =
+        (sign == '+') ? (hours * 60 + minutes) : (-hours * 60 - minutes);
+
+    DateTime localTime = DateTime.now();
+
+    DateTime utcTime = (sign == '+')
+        ? localTime.add(Duration(minutes: totalOffsetMinutes))
+        : localTime.subtract(Duration(minutes: totalOffsetMinutes));
+
+    formattedUtcTime = "${utcTime.toUtc()}";
+  }
+
+  return formattedUtcTime;
+}
+
 class _CountryItem extends StatelessWidget {
   const _CountryItem({
-    super.key,
     required this.currentCountry,
     required this.themeData,
     required this.time,
@@ -329,7 +320,6 @@ class _CountryItem extends StatelessWidget {
 
 class _SearchHistory extends StatelessWidget {
   const _SearchHistory({
-    super.key,
     required this.themeData,
   });
 
@@ -342,19 +332,59 @@ class _SearchHistory extends StatelessWidget {
         if (state is HomeSuccess) {
           final reversedList = state.lastSearches!.reversed.toSet().toList();
           if (reversedList.isEmpty) {
-            return Center(
-                child: Text(
-              'نام کشور مورد نظر یا بخشی از آن را در باکس بالا بنویسید',
-              style: themeData.textTheme.bodySmall!.copyWith(
-                color: Colors.grey.shade400,
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
+                height: 20,
+                child: Marquee(
+                  text:
+                      ".برای اطلاع از تغییر ساعتهای هر کشور، بر روی آن کشور کلیک کنید",
+                  style: themeData.textTheme.bodyText1!.copyWith(
+                    color: Colors.grey.shade600,
+                    fontSize: 12,
+                  ),
+                  scrollAxis: Axis.horizontal,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  blankSpace: 20.0,
+                  velocity: 25.0,
+                  pauseAfterRound: Duration(seconds: 1),
+                  showFadingOnlyWhenScrolling: true,
+                  fadingEdgeStartFraction: 0.1,
+                  fadingEdgeEndFraction: 0.1,
+                ),
               ),
-            ));
+            );
           }
           return Directionality(
             textDirection: TextDirection.rtl,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
+                height: 20,
+                child: Marquee(
+                  text:
+                      ".برای اطلاع از تغییر ساعتهای هر کشور، بر روی آن کشور کلیک کنید",
+                  style: themeData.textTheme.bodyText1!.copyWith(
+                    color: Colors.grey.shade600,
+                    fontSize: 12,
+                  ),
+                  scrollAxis: Axis.horizontal,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  blankSpace: 20.0,
+                  velocity: 20.0,
+                  pauseAfterRound: Duration(seconds: 1),
+                  showFadingOnlyWhenScrolling: true,
+                  fadingEdgeStartFraction: 0.05,
+                  fadingEdgeEndFraction: 0.5,
+                ),
+              ),
+            ),
+                const SizedBox(
+                  height: 8,
+                ),
                 Text(
                   'جستجو های پیشین :‌',
                   style: themeData.textTheme.bodyMedium!.copyWith(
@@ -369,7 +399,7 @@ class _SearchHistory extends StatelessWidget {
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     physics: const BouncingScrollPhysics(),
-                    itemCount: reversedList!.length,
+                    itemCount: reversedList.length,
                     itemBuilder: (context, index) {
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -431,7 +461,49 @@ class _SearchHistory extends StatelessWidget {
                       ),
                     ),
                   ),
-                )
+                ),
+                state.countries.length < 250
+                    ? Container(
+                        width: 180,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors
+                              .grey.shade300, // Set your desired color here
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(15),
+                            splashColor: Colors.white,
+                            onTap: () {
+                              context
+                                  .read<HomeBloc>()
+                                  .add(HomeScreenCountrySearch(''));
+                            },
+                            child: Row(
+                              children: [
+                                Icon(
+                                  CupertinoIcons.square_list,
+                                  size: 15,
+                                  color: Colors.grey.shade600,
+                                ),
+                                const SizedBox(
+                                  width: 4,
+                                ),
+                                Text(
+                                  'برگشت به لیست اصلی',
+                                  style:
+                                      themeData.textTheme.bodySmall!.copyWith(
+                                    color: Colors.grey.shade600,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                    : const SizedBox(),
               ],
             ),
           );
@@ -470,7 +542,6 @@ class _SearchHistory extends StatelessWidget {
 
 class _TextFieldContent extends StatelessWidget {
   const _TextFieldContent({
-    super.key,
     required this.controller,
     required this.themeData,
   });
@@ -480,116 +551,126 @@ class _TextFieldContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 30, 0, 10),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              height: 50,
-              width: MediaQuery.of(context).size.width,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(15),
-                    bottomLeft: Radius.circular(15),
-                    topRight: Radius.circular(8),
-                    bottomRight: Radius.circular(8)),
-              ),
-              child: Builder(
-                builder: (context) {
-                  return Directionality(
-                    textDirection: TextDirection.rtl,
-                    child: TextField(
-                      cursorColor: Colors.grey.shade400,
-                      cursorHeight: 20,
-                      controller: controller,
-                      onChanged: (value) {
-                        final searchKeyword = value.trim();
-                        if (searchKeyword.isEmpty) {
-                          // Perform operation when searchKeyword is empty
-                          context
-                              .read<HomeBloc>()
-                              .add(HomeScreenCountrySearch(''));
-                        }
-                      },
-                      onSubmitted: (value) {
-                        final searchKeyword = value.trim();
-                        if (searchKeyword.isNotEmpty) {
-                          context
-                              .read<HomeBloc>()
-                              .add(HomeScreenCountrySearch(searchKeyword));
-                        }
-                      },
-                      decoration: InputDecoration(
-                        floatingLabelBehavior: FloatingLabelBehavior.never,
-                        prefixIcon: GestureDetector(
-                          onTap: () {
-                            final searchKeyword = controller.text;
+    return WillPopScope(
+      onWillPop: () async {
+        if (controller.text.isNotEmpty) {
+          // Navigate back to PageB
+          // Navigator.of(context).pop();
+          context.read<HomeBloc>().add(HomeRefresh());
+          return false; // Prevent default back button behavior
+        }
+        return true; // Allow default back button behavior
+      },
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 30, 0, 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                height: 50,
+                width: MediaQuery.of(context).size.width,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(15),
+                      bottomLeft: Radius.circular(15),
+                      topRight: Radius.circular(8),
+                      bottomRight: Radius.circular(8)),
+                ),
+                child: Builder(
+                  builder: (context) {
+                    return Directionality(
+                      textDirection: TextDirection.rtl,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 20),
+                        child: TextField(
+                          selectionHeightStyle: BoxHeightStyle
+                              .max, // Moves the selection handles above and below the text
+                          selectionWidthStyle: BoxWidthStyle.tight,
+                          cursorColor: Colors.grey.shade400,
+                          cursorHeight: 30,
+                          controller: controller,
+                          onChanged: (value) {
+                            final searchKeyword = value.trim();
+                            if (searchKeyword.isEmpty) {
+                              // Perform operation when searchKeyword is empty
+                              context
+                                  .read<HomeBloc>()
+                                  .add(HomeScreenCountrySearch(''));
+                            }
+                          },
+                          onSubmitted: (value) {
+                            final searchKeyword = value.trim();
                             if (searchKeyword.isNotEmpty) {
                               context
                                   .read<HomeBloc>()
                                   .add(HomeScreenCountrySearch(searchKeyword));
                             }
                           },
-                          child: const Text(''),
-                        ),
-                        labelText: 'جستجو',
-                        labelStyle: themeData.textTheme.bodyMedium!.copyWith(
-                          color: Colors.grey.shade400,
-                        ),
-                        border: InputBorder.none,
-                        suffixIcon: GestureDetector(
-                          onTap: () {
-                            controller.clear(); // Clear the text field
-                            context
-                                .read<HomeBloc>()
-                                .add(HomeScreenCountrySearch(''));
-                          },
-                          child: const Icon(Icons.clear),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 20,
+                          decoration: InputDecoration(
+                            floatingLabelBehavior: FloatingLabelBehavior.never,
+                            labelText:
+                                'نام کشور مورد نظر یا بخشی از آن را بنویسید ...',
+                            labelStyle:
+                                themeData.textTheme.bodyMedium!.copyWith(
+                              color: Colors.grey.shade400,
+                              fontSize: 11,
+                            ),
+                            border: InputBorder.none,
+                            suffixIcon: GestureDetector(
+                              onTap: () {
+                                if (controller.text.isNotEmpty) {
+                                  controller.clear(); // Clear the text field
+                                  // context
+                                  //     .read<HomeBloc>()
+                                  //     .add(HomeScreenCountrySearch(''));
+                                }
+                              },
+                              child: const Icon(Icons.clear),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 20,
+                            ),
+                          ),
+                          textInputAction: TextInputAction.search,
                         ),
                       ),
-                      textInputAction: TextInputAction.search,
+                    );
+                  },
+                ),
+              ),
+            ),
+            Container(
+              height: 50,
+              width: 50,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
+                    topRight: Radius.circular(15),
+                    bottomRight: Radius.circular(15)),
+              ),
+              child: BlocBuilder<HomeBloc, HomeState>(
+                builder: (context, state) {
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(10),
+                    onTap: () {
+                      if (controller.text.isNotEmpty) {
+                        context.read<HomeBloc>().add(
+                            HomeScreenCountrySearch(controller.value.text));
+                      }
+                    },
+                    child: Icon(
+                      Icons.search,
+                      color: Colors.blue.shade300,
                     ),
                   );
                 },
               ),
             ),
-          ),
-          Container(
-            height: 50,
-            width: 50,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  bottomLeft: Radius.circular(8),
-                  topRight: Radius.circular(15),
-                  bottomRight: Radius.circular(15)),
-            ),
-            child: BlocBuilder<HomeBloc, HomeState>(
-              builder: (context, state) {
-                return InkWell(
-                  borderRadius: BorderRadius.circular(10),
-                  onTap: () {
-                    if (controller.text.isNotEmpty) {
-                      context
-                          .read<HomeBloc>()
-                          .add(HomeScreenCountrySearch(controller.value.text));
-                    }
-                  },
-                  child: Icon(
-                    Icons.search,
-                    color: Colors.blue.shade300,
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

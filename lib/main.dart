@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
             bodyLarge: defaultTextStyle.copyWith(
               color: Colors.grey.shade800,
               fontSize: 24,
-            ),
+            ), 
           ),
           colorScheme: const ColorScheme.light(
             primary: Color.fromRGBO(79, 76, 255, 1),
@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
           // primarySwatch: Colors.blue,
           //0xff3971FF
           ),
-      home: Directionality(
+      home: const Directionality(
         textDirection: TextDirection.ltr,
         child: HomeScreen()),
     );

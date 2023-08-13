@@ -22,7 +22,7 @@ class EmptyView extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(48, 48, 24, 16),
           child: Text(
             message,
-            style: Theme.of(context).textTheme.headline6!.copyWith(height: 1.3),
+            style: Theme.of(context).textTheme.titleLarge!.copyWith(height: 1.3),
             textAlign: TextAlign.center,
           ),
         ),

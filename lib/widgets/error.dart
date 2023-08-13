@@ -1,6 +1,5 @@
 import 'package:counries_info/common/exceptions.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class AppErrorWidget extends StatelessWidget {
   final AppException exception;
@@ -27,6 +26,9 @@ class AppErrorWidget extends StatelessWidget {
             ),
             ElevatedButton(
                 onPressed: onTap,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey.shade800,
+                ),
                 child: Text(
                   'تلاش دوباره',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(

@@ -18,7 +18,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           event is HomeRefresh ||
           event is HomeScreenCountrySearch ||
           event is ClearSearchHistory) {
-        final searchTerm;
+        final String searchTerm;
         emit(HomeLoading());
         await Future.delayed(const Duration(seconds: 1));
         if (event is HomeScreenCountrySearch) {

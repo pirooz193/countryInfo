@@ -16,12 +16,14 @@ class CountryRemoteDataSource
 
   @override
   Future<List<CountryEntity>> getCountries({String searchKeyword = ''}) async {
+    int cntr = 0 ;
     final response = await httpClient.get('all');
     validateResponse(response);
     final countries = <CountryEntity>[];
-    (response.data as List).forEach((element) {
-      countries.add(CountryEntity.fromJson(element));
-    });
+    for (var element in (response.data as List)) {
+      final country = CountryEntity.fromJson(element);
+      countries.add(country);
+    }
 
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     if (searchKeyword.isNotEmpty) {
