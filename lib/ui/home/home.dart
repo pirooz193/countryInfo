@@ -336,22 +336,23 @@ class _SearchHistory extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: SizedBox(
                 height: 20,
-                child: Marquee(
-                  text:
-                      ".برای اطلاع از تغییر ساعتهای هر کشور، بر روی آن کشور کلیک کنید",
-                  style: themeData.textTheme.bodyText1!.copyWith(
-                    color: Colors.grey.shade600,
-                    fontSize: 12,
-                  ),
-                  scrollAxis: Axis.horizontal,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  blankSpace: 20.0,
-                  velocity: 25.0,
-                  pauseAfterRound: Duration(seconds: 1),
-                  showFadingOnlyWhenScrolling: true,
-                  fadingEdgeStartFraction: 0.1,
-                  fadingEdgeEndFraction: 0.1,
-                ),
+                child:Marquee(
+                      textDirection: TextDirection.ltr,
+                      text:
+                          ".برای اطلاع از تغییر ساعت فصلی هر کشور، وارد آن کشور شوید و بر روی  ساعت آن کشور ضربه بزنید",
+                      style: themeData.textTheme.bodyMedium!.copyWith(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                      ),
+                      scrollAxis: Axis.horizontal,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      blankSpace: 10.0,
+                      velocity: 25.0,
+                      pauseAfterRound: Duration(seconds: 1),
+                      showFadingOnlyWhenScrolling: true,
+                      fadingEdgeStartFraction: 0.05,
+                      fadingEdgeEndFraction: 0.01,
+                    ),
               ),
             );
           }
@@ -361,27 +362,28 @@ class _SearchHistory extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SizedBox(
-                height: 20,
-                child: Marquee(
-                  text:
-                      ".برای اطلاع از تغییر ساعتهای هر کشور، بر روی آن کشور کلیک کنید",
-                  style: themeData.textTheme.bodyText1!.copyWith(
-                    color: Colors.grey.shade600,
-                    fontSize: 12,
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    height: 20,
+                    child: Marquee(
+                      textDirection: TextDirection.ltr,
+                      text:
+                          ".برای اطلاع از تغییر ساعت فصلی هر کشور، وارد آن کشور شوید و بر روی ساعت آن کشور ضربه بزنید",
+                      style: themeData.textTheme.bodyMedium!.copyWith(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                      ),
+                      scrollAxis: Axis.horizontal,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      blankSpace: 10.0,
+                      velocity: 25.0,
+                      pauseAfterRound: Duration(seconds: 1),
+                      showFadingOnlyWhenScrolling: true,
+                      fadingEdgeStartFraction: 0.05,
+                      fadingEdgeEndFraction: 0.01,
+                    ),
                   ),
-                  scrollAxis: Axis.horizontal,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  blankSpace: 20.0,
-                  velocity: 20.0,
-                  pauseAfterRound: Duration(seconds: 1),
-                  showFadingOnlyWhenScrolling: true,
-                  fadingEdgeStartFraction: 0.05,
-                  fadingEdgeEndFraction: 0.5,
                 ),
-              ),
-            ),
                 const SizedBox(
                   height: 8,
                 ),
@@ -492,7 +494,7 @@ class _SearchHistory extends StatelessWidget {
                                   width: 4,
                                 ),
                                 Text(
-                                  'برگشت به لیست اصلی',
+                                  'بازگشت به لیست اصلی',
                                   style:
                                       themeData.textTheme.bodySmall!.copyWith(
                                     color: Colors.grey.shade600,
@@ -588,7 +590,7 @@ class _TextFieldContent extends StatelessWidget {
                               .max, // Moves the selection handles above and below the text
                           selectionWidthStyle: BoxWidthStyle.tight,
                           cursorColor: Colors.grey.shade400,
-                          cursorHeight: 30,
+                          cursorHeight: 25,
                           controller: controller,
                           onChanged: (value) {
                             final searchKeyword = value.trim();

@@ -45,6 +45,7 @@ dependencies:
   flutter_map: ^5.0.0
   latlong2: ^0.9.0
   marquee: ^2.2.3
+  flutter_analog_clock: ^1.0.3
 
 
 dev_dependencies:
