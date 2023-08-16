@@ -20,8 +20,15 @@ class AppErrorWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             image,
-            Text(exception.message),
-            const SizedBox(
+            Text(exception.message, textDirection: TextDirection.rtl,textAlign: TextAlign.center,),
+            const SizedBox( 
+              height: 10,
+            ),
+            Text('(دوست عزیز از اونجایی که در ایران زندگی می‌کنیم احتمال ایجاد تحریم وجود دارد. در صورتی که از اتصال اینترنت  خود مطمئن هستید، از تحریم شکن ها استفاده کنید و دوباره امتحان کنید.\nبا سپاس - برنامه ساعت جهانی  )', textDirection: TextDirection.rtl,textAlign: TextAlign.center,style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              color: Colors.grey.shade500,
+              fontSize: 12,
+            ),),
+            const SizedBox( 
               height: 10,
             ),
             ElevatedButton(

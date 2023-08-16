@@ -78,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             itemBuilder: (context, index) {
                               final currentCountry = countries[index];
                               final time = calculateTimeFromTimeZoneOffset(
-                                  currentCountry.timezones![0]);
+                                  currentCountry.timezones![currentCountry.timezones!.length -1 ]);
                               return InkWell(
                                   borderRadius: BorderRadius.circular(20),
                                   onTap: () {
@@ -113,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 20,
                             ),
                             Text(
-                              'در حال جستجوی ۱۹۵ کشور ',
+                              'در حال جستجوی کشورها ',
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
@@ -348,7 +348,7 @@ class _SearchHistory extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       blankSpace: 10.0,
                       velocity: 25.0,
-                      pauseAfterRound: Duration(seconds: 1),
+                      pauseAfterRound: const Duration(seconds: 1),
                       showFadingOnlyWhenScrolling: true,
                       fadingEdgeStartFraction: 0.05,
                       fadingEdgeEndFraction: 0.01,
@@ -377,7 +377,7 @@ class _SearchHistory extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       blankSpace: 10.0,
                       velocity: 25.0,
-                      pauseAfterRound: Duration(seconds: 1),
+                      pauseAfterRound: const Duration(seconds: 1),
                       showFadingOnlyWhenScrolling: true,
                       fadingEdgeStartFraction: 0.05,
                       fadingEdgeEndFraction: 0.01,
@@ -510,23 +510,7 @@ class _SearchHistory extends StatelessWidget {
             ),
           );
         } else if (state is HomeLoading) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(
-                  height: 30,
-                ),
-                Text(
-                  '...',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey.shade600,
-                      ),
-                )
-              ],
-            ),
-          );
+          return const SizedBox();
         } else {
           return Center(
             child: Text(
@@ -558,9 +542,10 @@ class _TextFieldContent extends StatelessWidget {
         if (controller.text.isNotEmpty) {
           // Navigate back to PageB
           // Navigator.of(context).pop();
+          controller.clear();
           context.read<HomeBloc>().add(HomeRefresh());
           return false; // Prevent default back button behavior
-        }
+        }else 
         return true; // Allow default back button behavior
       },
       child: Padding(
@@ -660,7 +645,7 @@ class _TextFieldContent extends StatelessWidget {
                     onTap: () {
                       if (controller.text.isNotEmpty) {
                         context.read<HomeBloc>().add(
-                            HomeScreenCountrySearch(controller.value.text));
+                            HomeScreenCountrySearch(controller.text));
                       }
                     },
                     child: Icon(

@@ -54,13 +54,29 @@ android {
         versionName flutterVersionName
     }
 
+    signingConfigs {
+    release {
+        keyAlias 'key'
+        keyPassword 'Pir**z1379'
+        storeFile file('/home/pirooz/developer/flutter/counries_info/keystore.jks')
+        storePassword 'Pir**z1379'
+    }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
-        }
+            signingConfig signingConfigs.release
+            }
     }
+
+
+    // buildTypes {
+    //     release {
+    //         // TODO: Add your own signing config for the release build.
+    //         // Signing with the debug keys for now, so `flutter run --release` works.
+    //         signingConfig signingConfigs.debug
+    //     }
+    // }
 }
 
 flutter {

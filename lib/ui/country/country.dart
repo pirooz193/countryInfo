@@ -33,20 +33,9 @@ class _CountryScreenState extends State<CountryScreen> {
     super.dispose();
   }
 
-  // void _startBlinking() {
-  //   Future.delayed(const Duration(milliseconds: 2500), () {
-  //     if (mounted) {
-  //       setState(() {
-  //         _isVisible = !_isVisible;
-  //         _startBlinking();
-  //       });
-  //     }
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
-    final time = calculateTimeFromTimeZoneOffset(widget.country.timezones![0]);
+    final time = calculateTimeFromTimeZoneOffset(widget.country.timezones![widget.country.timezones!.length -1 ]);
     final dateTime = DateTime.parse(time.toString());
     final coordinates =
         _parseCoordinatesFromUrl(widget.country.maps!['openStreetMaps']);
@@ -76,6 +65,7 @@ class _CountryScreenState extends State<CountryScreen> {
       body: Padding(
         padding: const EdgeInsets.fromLTRB(15, 30, 15, 10),
         child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           scrollDirection: Axis.vertical,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -86,16 +76,17 @@ class _CountryScreenState extends State<CountryScreen> {
                   width: MediaQuery.of(context).size.width,
                   height: 250,
                   decoration: BoxDecoration(
-                      color: Colors.grey.shade400,
-                      borderRadius: BorderRadius.circular(15),
-                      boxShadow: [
-                        BoxShadow(
-                          blurRadius: 20,
-                          color: Colors.grey.shade400,
-                        )
-                      ]),
-                  child: ClipRRect(
+                    color: Colors.grey.shade400,
                     borderRadius: BorderRadius.circular(15),
+                    // boxShadow: [
+                    //   BoxShadow(
+                    //     blurRadius: 20,
+                    //     color: Colors.grey.shade400,
+                    //   ),
+                    // ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(5),
                     child: FlutterMap(
                       options: MapOptions(
                         center: coordinates,
@@ -140,33 +131,14 @@ class _CountryScreenState extends State<CountryScreen> {
               ),
               Center(
                 child: Text(
-                        'برای بررسی تغییر ساعت فصلی بر روی ساعت زیر کلیک کنید',
-                        textDirection: TextDirection.rtl,
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              color: Colors.grey.shade400,
-                              fontSize: 12,
-                            ),
+                  'برای بررسی تغییر ساعت فصلی بر روی ساعت زیر کلیک کنید',
+                  textDirection: TextDirection.rtl,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: Colors.grey.shade400,
+                        fontSize: 12,
                       ),
+                ),
               ),
-              // Center(
-              //   child: TweenAnimationBuilder<double>(
-              //     duration: const Duration(milliseconds: 800),
-              //     tween: Tween<double>(begin: 0.0, end: _isVisible ? 1.0 : 0.0),
-              //     builder: (context, value, child) {
-              //       return Opacity(
-              //         opacity: value,
-              //         child: Text(
-              //           'برای بررسی تغییر ساعت فصلی بر روی ساعت زیر کلیک کنید',
-              //           textDirection: TextDirection.rtl,
-              //           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              //                 color: Colors.grey.shade700,
-              //                 fontSize: 12,
-              //               ),
-              //         ),
-              //       );
-              //     },
-              //   ),
-              // ),
               const SizedBox(
                 height: 20,
               ),
@@ -230,20 +202,20 @@ class _CountryScreenState extends State<CountryScreen> {
                   children: [
                     rowItems(
                         'پایتخت',
-                        widget.country.capital![0],
+                        widget.country.capital!.isNotEmpty ? widget.country.capital![0] : '--',
                         'زبان',
-                        widget.country.languages
-                                .toString()
+                        widget.country.languages != null ? 
+                               widget.country.languages .toString()
                                 .split(':')[1]
-                                .replaceAll("}", '') ??
+                                .replaceAll("}", '') :
                             '--'),
                     const SizedBox(
                       height: 20,
                     ),
                     rowItems(
                         'پیش شماره',
-                        widget.country.idd!['root'] +
-                                widget.country.idd!['suffixes'][0] ??
+                        widget.country.idd!.isNotEmpty ? (widget.country.idd!['root'] +
+                                widget.country.idd!['suffixes'][0]) :
                             '--',
                         'کد',
                         widget.country.cca2 ?? '--'),
@@ -252,12 +224,12 @@ class _CountryScreenState extends State<CountryScreen> {
                     ),
                     rowItems(
                       'واحد پول',
-                      widget.country.currencies
-                              .toString()
+                      widget.country.currencies != null ? 
+                             widget.country.currencies .toString()
                               .split('name')[0]
                               .replaceAll(":", "")
                               .replaceAll("}", '')
-                              .replaceAll("{", '') ??
+                              .replaceAll("{", '') :
                           '--',
                       'روز شروع هفته',
                       widget.country.startOfWeek ?? '--',
@@ -416,9 +388,9 @@ class _CountryScreenState extends State<CountryScreen> {
       final relationId = int.tryParse(match.group(1)!);
       if (relationId != null) {
         final latitude =
-            widget.country.capitalInfo!['latlng'][0]; // Example latitude
+            widget.country.latlng![0]; // Example latitude
         final longitude =
-            widget.country.capitalInfo!['latlng'][1]; // Example longitude
+            widget.country.latlng![1]; // Example longitude
 
         return LatLng(latitude, longitude);
       }
