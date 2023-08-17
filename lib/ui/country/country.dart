@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:counries_info/data/CountryEntity.dart';
 import 'package:counries_info/widgets/image.dart';
 import 'package:dio/dio.dart';
@@ -9,6 +10,55 @@ import 'package:latlong2/latlong.dart';
 // This package provides LatLng class
 
 bool isLoading = false;
+class FullScreenImage extends StatelessWidget {
+  final String imageUrl;
+  final String countryName;
+
+  const FullScreenImage({super.key, required this.imageUrl, required this.countryName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: const Color.fromARGB(255, 227, 236, 236),
+        foregroundColor: Colors.grey.shade700,
+        title: Text(
+          countryName,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+      body: Center(
+        child: GestureDetector(
+          onTap: () {
+            // Close the full-screen image view
+            Navigator.pop(context);
+          },
+          child: Container(
+                      width: 350,
+                      height: 250,
+                      decoration: BoxDecoration(
+                          color: Colors.grey.shade400,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 20,
+                              color: Colors.grey.shade400,
+                            )
+                          ]),
+                      child: ImageLoadingService(
+                        imageUrl: imageUrl,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.fill,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    )
+        ),
+      ),
+    );
+  }
+}
 
 class CountryScreen extends StatefulWidget {
   final CountryEntity country;
@@ -20,12 +70,10 @@ class CountryScreen extends StatefulWidget {
 }
 
 class _CountryScreenState extends State<CountryScreen> {
-  bool _isVisible = true;
 
   @override
   void initState() {
     super.initState();
-    // _startBlinking();
   }
 
   @override
@@ -50,7 +98,17 @@ class _CountryScreenState extends State<CountryScreen> {
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
-          Padding(
+           GestureDetector(
+            onTap: () {
+              // Open the full-screen image view
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FullScreenImage(countryName:widget.country.name!['common'] , imageUrl: widget.country.flags!['png']),
+                ),
+              );
+            },
+            child:  Padding(
             padding: const EdgeInsets.all(8.0),
             child: ImageLoadingService(
               imageUrl: widget.country.flags!['png'],
@@ -60,6 +118,8 @@ class _CountryScreenState extends State<CountryScreen> {
               borderRadius: BorderRadius.circular(10),
             ),
           ),
+          ),
+         
         ],
       ),
       body: Padding(
